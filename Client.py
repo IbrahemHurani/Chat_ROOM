@@ -1,8 +1,10 @@
+import os
 import tkinter as tk
 from tkinter import messagebox
 import socket
 import threading
-
+from os.path import basename
+import tkinter.filedialog
 window = tk.Tk()
 window.title("Client")
 username = " "
@@ -41,7 +43,7 @@ tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
 tkMessage.config(highlightbackground="grey", state="disabled")
 tkMessage.bind("<Return>", (lambda event: getChatMessage(tkMessage.get("1.0", tk.END))))
 
-Download=tk.Button(bottomFrame,text="Download").pack(side=tk.RIGHT)#!!!!!!!!!!!!!!!!!!!!!!!!you need to add the lambda
+Download=tk.Button(bottomFrame,text="Download",).pack(side=tk.RIGHT)#!!!!!!!!!!!!!!!!!!!!!!!!you need to add the lambda
 ##########################3
 
 bottomFrame.pack(side=tk.BOTTOM)
@@ -82,6 +84,7 @@ def connect_to_server(name):
 
 
 def receive_message_from_server(sck, m):
+    tkDisplay.config(state=tk.NORMAL)
     while True:
         from_server = sck.recv(4096).decode()
 
@@ -98,7 +101,7 @@ def receive_message_from_server(sck, m):
         else:
             tkDisplay.insert(tk.END, "\n"+ from_server)
 
-        tkDisplay.config(state=tk.NORMAL)
+        tkDisplay.config(state=tk.DISABLED)
         #tkDisplay.see(tk.END)
 
 
@@ -138,4 +141,6 @@ def send_mssage_to_server(msg):
 
 def close():#for close window
     window.destroy()
+
+
 window.mainloop()
