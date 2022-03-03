@@ -3,6 +3,7 @@ import socket
 import threading
 
 
+
 window = tk.Tk()
 window.title("Server")
 
@@ -11,7 +12,7 @@ topFrame = tk.Frame(window)
 Welocome=tk.Label(topFrame,text="Welcome to my project Chat Room server").pack()
 btnStart = tk.Button(topFrame, text="Connect Server", command=lambda : start_server())
 btnStart.pack(side=tk.LEFT)
-btnStop = tk.Button(topFrame, text="Stop Server", command=lambda : stop_server(), state=tk.DISABLED)
+btnStop = tk.Button(topFrame, text="disconnect", command=lambda : stop_server(), state=tk.DISABLED)
 btnStop.pack(side=tk.LEFT)
 topFrame.pack(side=tk.TOP, pady=(5, 0))
 
@@ -32,10 +33,10 @@ clientFrame = tk.Frame(window)
 lblLine = tk.Label(clientFrame, text="Client List:").pack(side=tk.LEFT)
 scrollBar = tk.Scrollbar(clientFrame)
 scrollBar.pack(side=tk.RIGHT, fill=tk.Y)
-tkDisplay = tk.Text(clientFrame, height=20, width=30)
+tkDisplay = tk.Text(clientFrame, height=20, width=28)
 tkDisplay.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0))
 scrollBar.config(command=tkDisplay.yview)
-tkDisplay.config(yscrollcommand=scrollBar.set, background="blue", highlightbackground="gray", state="disabled")
+tkDisplay.config(yscrollcommand=scrollBar.set, background="white", highlightbackground="gray", state="disabled")
 clientFrame.pack(side=tk.BOTTOM, pady=(5, 10))
 
 
@@ -52,12 +53,13 @@ clients_names = []
 
 bottomFrame = tk.Frame(window)
 msg=tk.Label(bottomFrame,text="Write  message !").pack(side=tk.LEFT)
-tkMessage = tk.Text(bottomFrame, height=2, width=50)
-tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
-tkMessage.config(highlightbackground="grey", state="disabled")
+Message_all = tk.Text(bottomFrame, height=2, width=30)
+Message_all.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
+Message_all.config(highlightbackground="grey", state="disabled")
 #getChatMessage(tkMessage.get("1.0", tk.END)
-tkMessage.bind("<Return>", (lambda event:getChatMessage(tkMessage.get("1.0", tk.END))))
+Message_all.bind("<Return>", (lambda event:send_Message_all(Message_all.get("1.0", tk.END))))
 bottomFrame.pack(side=tk.BOTTOM)
+
 
 
 # Start server function
@@ -69,7 +71,7 @@ def start_server():
     print("Server With TCP Running .....!")
     server.bind((HOST_ADDR, HOST_PORT))
     server.listen(100)  # server is listening for client connection
-    tkMessage.config(state=tk.NORMAL)
+    Message_all.config(state=tk.NORMAL)
     threading._start_new_thread(accept_clients, (server, " "))
 
 
@@ -157,11 +159,11 @@ def update_client_names_display(name_list):
         tkDisplay.insert(tk.END, c+"\n")
     tkDisplay.config(state=tk.DISABLED)
 
-
-def getChatMessage(msg):
+#this function to send message from the server for all the clients
+def send_Message_all(msg):
     global client2
     msg_server=str(msg)
-    welcome_msg = "server :" + msg_server+" "
+    welcome_msg = "Server Say :" + msg_server+" "
     for c in clients:
         c.send(welcome_msg.encode())
 
