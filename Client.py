@@ -5,49 +5,68 @@ import socket
 import threading
 from os.path import basename
 import tkinter.filedialog
+import time
 window = tk.Tk()
+window.config(background="#7FFFD4")
 window.title("Client")
 username = " "
 clients=[]
+file=b''
 
 topFrame = tk.Frame(window)
-lblName = tk.Label(topFrame, text = "Name:").pack(side=tk.LEFT)
+lblName = tk.Label(topFrame, text = "Name:",background="#7FFFD4").pack(side=tk.LEFT)
 entName = tk.Entry(topFrame)
+entName.config(background="#F5F5F5")
+topFrame.config(background="#7FFFD4")
 entName.pack(side=tk.LEFT)
 
-btnConnect = tk.Button(topFrame, text="Connect", command=lambda : connect())
+btnConnect = tk.Button(topFrame, text="Connect",background="#CAFF70" ,command=lambda : connect())
 btnConnect.pack(side=tk.LEFT)
-ButtonClose=tk.Button(topFrame,text="Close",command=lambda :close())
+ButtonClose=tk.Button(topFrame,text="Close",background="#CAFF70" ,command=lambda :close())
 ButtonClose.pack(side=tk.LEFT)
-
 
 topFrame.pack(side=tk.TOP)
 
 
 displayFrame = tk.Frame(window)
-lblLine = tk.Label(displayFrame, text="Your Chat Room ! ").pack(side=tk.LEFT)
+lblLine = tk.Label(displayFrame, text="Your Chat Room ! ",background="#FF4040").pack(side=tk.LEFT)
+displayFrame.config(background="#7FFFD4")
 scrollBar = tk.Scrollbar(displayFrame)
 scrollBar.pack(side=tk.RIGHT, fill=tk.Y)
 tkDisplay = tk.Text(displayFrame, height=20, width=59)
 tkDisplay.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0))
 tkDisplay.tag_config("tag_your_message", foreground="blue")
 scrollBar.config(command=tkDisplay.yview)
-tkDisplay.config(yscrollcommand=scrollBar.set, background="white", highlightbackground="grey", state="disabled")
+tkDisplay.config(yscrollcommand=scrollBar.set, background="#F5F5F5", highlightbackground="grey", state="disabled")
 displayFrame.pack(side=tk.TOP)
 
 
 bottomFrame = tk.Frame(window)
-msg=tk.Label(bottomFrame,text="Write  message !").pack(side=tk.LEFT)
+msg=tk.Label(bottomFrame,text="Write  message !",background="#7FFFD4").pack(side=tk.LEFT)
+bottomFrame.config(background="#7FFFD4")
 tkMessage = tk.Text(bottomFrame, height=2, width=50)
 tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
 tkMessage.config(highlightbackground="grey", state="disabled")
 tkMessage.bind("<Return>", (lambda event: getChatMessage(tkMessage.get("1.0", tk.END))))
-
-Download=tk.Button(bottomFrame,text="Download",).pack(side=tk.RIGHT)#!!!!!!!!!!!!!!!!!!!!!!!!you need to add the lambda
-##########################3
-
 bottomFrame.pack(side=tk.BOTTOM)
 
+bottomFrame2=tk.Frame(window)
+NameFile=tk.Label(bottomFrame2,text="File Name",background="#7FFFD4").pack(side=tk.LEFT)
+bottomFrame2.config(background="#7FFFD4")
+pathFile=tk.Text(bottomFrame2,height=1,width=20)
+pathFile.pack(side=tk.RIGHT,padx=(5,13),pady=(5,10))
+pathFile.config(highlightbackground="grey", state=tk.NORMAL)
+Download=tk.Button(bottomFrame2,text="Download",background="#CAFF70" ,command=lambda :OnDownload(file,pathFile.get("1.0",tk.END))).pack(side=tk.RIGHT)#!!!!!!!!!!!!!!!!!!!!!!!!you need to add the lambda
+bottomFrame2.pack(side=tk.LEFT)
+
+def OnDownload(file,fileName):
+
+    fullpath = tk.filedialog.asksaveasfilename(initialdir="/", title="Select file", initialfile=fileName)
+    f = open(fullpath, 'wb')
+    f.write(file)
+    d = os.path.getsize(file)
+    file = b''
+    print(fullpath)
 
 def connect():
     global username, client
@@ -60,10 +79,10 @@ def connect():
 
 # network client
 client = None
+client2=None
 HOST_ADDR = '127.0.0.1'
 HOST_PORT = 8080
-
-
+filename=''
 def connect_to_server(name):
     global client, HOST_PORT, HOST_ADDR
     try:
@@ -83,6 +102,7 @@ def connect_to_server(name):
         tk.messagebox.showerror(title="ERROR!!!", message="Cannot connect to host: " + HOST_ADDR + " on port: " + str(HOST_PORT) + " Server may be Unavailable. Try again later")
 
 
+
 def receive_message_from_server(sck, m):
     tkDisplay.config(state=tk.NORMAL)
     while True:
@@ -90,10 +110,10 @@ def receive_message_from_server(sck, m):
 
         if not from_server: break
 
-        # display message from server on the chat window
+            # display message from server on the chat window
 
-        # enable the display area and insert the text and then disable.
-        # why? Apparently, tkinter does not allow us insert into a disabled Text widget :(
+            # enable the display area and insert the text and then disable.
+            # why? Apparently, tkinter does not allow us insert into a disabled Text widget :(
         texts = tkDisplay.get("1.0", tk.END).strip()
         tkDisplay.config(state=tk.NORMAL)
         if len(texts) < 1:
@@ -101,10 +121,8 @@ def receive_message_from_server(sck, m):
         else:
             tkDisplay.insert(tk.END, "\n"+ from_server)
 
-        tkDisplay.config(state=tk.DISABLED)
-        #tkDisplay.see(tk.END)
-
-
+            tkDisplay.config(state=tk.DISABLED)
+            #tkDisplay.see(tk.END)
 
     sck.close()
     window.destroy()
